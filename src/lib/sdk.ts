@@ -37,3 +37,19 @@ export class QueueWatchSDK {
 }
 
 export const qw = new QueueWatchSDK();
+
+/**
+ * Auto-Intercept Wrapper
+ * Wraps any background job to automatically track successes and failures without manual try/catch blocks.
+ */
+export async function withQueueWatch<T>(queueName: string, jobFunction: () => Promise<T>): Promise<T> {
+  try {
+    const result = await jobFunction();
+    await qw.trackJobSuccess(queueName);
+    return result;
+  } catch (error: any) {
+    await qw.trackJobFailure(queueName, error.message || 'Unknown error');
+    throw error;
+  }
+}
+

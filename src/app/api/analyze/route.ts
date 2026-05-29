@@ -63,7 +63,9 @@ Each incident object must have the following schema:
   "severity": "High" | "Medium" | "Low",
   "impact": "A sentence explaining the exact business impact and financial loss based on the rules.",
   "cause": "A sentence explaining the technical cause from the errors.",
-  "action": "A single recommended action for the engineering team to fix it."
+  "action": "A single recommended action for the engineering team to fix it.",
+  "fix_snippet": "A 1-3 line bash script, kubernetes command, or code snippet that a developer can copy/paste to begin fixing the issue.",
+  "timeline": ["A list of 3 short chronological events leading up to this failure based on the error data"]
 }
 `;
 

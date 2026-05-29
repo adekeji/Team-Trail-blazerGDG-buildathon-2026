@@ -172,15 +172,28 @@ function MetricCard({ title, value, subtext, icon, critical = false }: { title: 
   );
 }
 
-function IncidentAlert({ title, severity, impact, cause, action }: { title: string, severity: string, impact: string, cause: string, action: string }) {
+function IncidentAlert({ title, severity, impact, cause, action, fix_snippet, timeline }: { title: string, severity: string, impact: string, cause: string, action: string, fix_snippet?: string, timeline?: string[] }) {
+  const [expanded, setExpanded] = useState(false);
   const isHigh = severity.toLowerCase() === 'high';
+  
   return (
-    <div className={`border rounded-lg p-5 transition-all ${isHigh ? 'border-red-500/30 bg-gradient-to-br from-red-500/10 to-transparent' : 'border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent'}`}>
-      <div className="flex items-center space-x-3 mb-3">
-        <AlertTriangle className={`w-5 h-5 ${isHigh ? 'text-red-500' : 'text-amber-500'}`} />
-        <h3 className={`font-semibold ${isHigh ? 'text-red-50' : 'text-amber-50'}`}>{title}</h3>
-        <span className={`text-xs font-medium px-2 py-0.5 rounded border ${isHigh ? 'bg-red-500/20 text-red-400 border-red-500/20' : 'bg-amber-500/20 text-amber-400 border-amber-500/20'}`}>{severity}</span>
+    <div className={`border rounded-lg p-5 transition-all duration-300 ${isHigh ? 'border-red-500/30 bg-gradient-to-br from-red-500/10 to-transparent' : 'border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent'}`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-3">
+          <AlertTriangle className={`w-5 h-5 ${isHigh ? 'text-red-500' : 'text-amber-500'}`} />
+          <h3 className={`font-semibold ${isHigh ? 'text-red-50' : 'text-amber-50'}`}>{title}</h3>
+          <span className={`text-xs font-medium px-2 py-0.5 rounded border ${isHigh ? 'bg-red-500/20 text-red-400 border-red-500/20' : 'bg-amber-500/20 text-amber-400 border-amber-500/20'}`}>{severity}</span>
+        </div>
+        {(fix_snippet || timeline) && (
+          <button 
+            onClick={() => setExpanded(!expanded)}
+            className={`text-xs px-3 py-1.5 rounded transition-colors ${isHigh ? 'bg-red-500/20 hover:bg-red-500/30 text-red-300' : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-300'}`}
+          >
+            {expanded ? 'Hide Report' : 'Full Report'}
+          </button>
+        )}
       </div>
+
       <div className="space-y-3 mt-4 text-sm">
         <div>
           <span className={`${isHigh ? 'text-red-400' : 'text-amber-400'} font-medium`}>Business Impact:</span>
@@ -195,6 +208,38 @@ function IncidentAlert({ title, severity, impact, cause, action }: { title: stri
           <p className="text-emerald-50 mt-1">{action}</p>
         </div>
       </div>
+
+      {/* Expanded Report Section */}
+      {expanded && (timeline || fix_snippet) && (
+        <div className={`mt-5 pt-5 border-t animate-in fade-in slide-in-from-top-2 ${isHigh ? 'border-red-500/20' : 'border-amber-500/20'}`}>
+          {timeline && timeline.length > 0 && (
+            <div className="mb-5">
+              <span className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Chronological Breakdown</span>
+              <div className="mt-3 space-y-3 relative before:absolute before:inset-0 before:ml-2 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-zinc-700 before:to-transparent">
+                {timeline.map((event, idx) => (
+                  <div key={idx} className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <div className={`flex items-center justify-center w-4 h-4 rounded-full border-2 border-zinc-900 bg-zinc-700 text-slate-500 shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 relative left-0 md:left-1/2 z-10 ${idx === timeline.length - 1 ? (isHigh ? 'bg-red-500' : 'bg-amber-500') : ''}`}></div>
+                    <div className="w-[calc(100%-2.5rem)] md:w-[calc(50%-1.5rem)] p-3 rounded border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-300">
+                      {event}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {fix_snippet && (
+            <div>
+              <span className="text-zinc-400 text-xs font-semibold uppercase tracking-wider">Developer Fix Snippet</span>
+              <div className="mt-2 relative">
+                <pre className="p-3 text-xs bg-[#0d0d0d] border border-zinc-800 rounded-lg overflow-x-auto text-emerald-400 font-mono">
+                  <code>{fix_snippet}</code>
+                </pre>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
